@@ -14,13 +14,15 @@ const WASMConfig = {
 
 async function dummySQLFromURL() {
   const sqlPromise = initSqlJs(WASMConfig);
-  const dataPromise = fetch(
-    "https://raw.githubusercontent.com/nalgeon/sqliter/main/employees.en.db"
-  ).then((res) => res.arrayBuffer());
+  const dbUrl =
+    "https://raw.githubusercontent.com/saeedesmaili/hackernews-topics/master/src/data/my_database.db";
+  // const dbUrl =
+  //   "https://raw.githubusercontent.com/nalgeon/sqliter/main/employees.en.db";
+  const dataPromise = fetch(dbUrl).then((res) => res.arrayBuffer());
   const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
   const db = new SQL.Database(new Uint8Array(buf));
 
-  const stmt = db.prepare("SELECT * FROM employees;");
+  const stmt = db.prepare("SELECT * FROM ngrams limit 10;");
   while (stmt.step()) {
     const row = stmt.getAsObject();
     console.log("Here is a row: " + JSON.stringify(row));
