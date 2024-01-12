@@ -16,17 +16,39 @@ async function dummySQLFromURL() {
   const sqlPromise = initSqlJs(WASMConfig);
   const dbUrl =
     "https://raw.githubusercontent.com/saeedesmaili/hackernews-topics/master/src/data/my_database.db";
-  // const dbUrl =
-  //   "https://raw.githubusercontent.com/nalgeon/sqliter/main/employees.en.db";
   const dataPromise = fetch(dbUrl).then((res) => res.arrayBuffer());
   const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
   const db = new SQL.Database(new Uint8Array(buf));
 
-  const stmt = db.prepare("SELECT * FROM ngrams limit 10;");
-  while (stmt.step()) {
-    const row = stmt.getAsObject();
-    console.log("Here is a row: " + JSON.stringify(row));
-  }
+  // const stmt = db.prepare("SELECT * FROM ngrams limit 10;");
+  // while (stmt.step()) {
+  //   const row = stmt.getAsObject();
+  //   console.log("Here is a row: " + JSON.stringify(row));
+  // }
+
+  const res = db.exec(`
+  WITH tempTable AS (
+    SELECT 
+        SUBSTR(month, 1, 4) as year, 
+        month,
+        unigram, 
+        MIN(unigram_score) as min_unigram_score
+    FROM 
+        ngrams 
+    GROUP BY 
+        month, unigram
+)
+
+SELECT 
+    year, 
+    unigram,
+    SUM(min_unigram_score) as sum_unigram_score
+FROM 
+    tempTable
+GROUP BY 
+    year, unigram;
+`);
+  console.log(res[0]);
 }
 
 function filterData({ aggregation, year }) {
