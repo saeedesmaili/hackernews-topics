@@ -1,5 +1,3 @@
-// install (please try to align the version of installed @nivo packages)
-// yarn add @nivo/bump
 import { ResponsiveBump } from "@nivo/bump";
 
 const CustomPointComponent = (props) => {
@@ -96,6 +94,9 @@ const BumpChart = ({ data, highlights, onClick }) => (
     }}
     margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
     onClick={onClick}
+    tooltip={() => {
+      return;
+    }}
     theme={{
       text: { fontSize: 21 },
       axis: { ticks: { text: { fontSize: 12 } } },
